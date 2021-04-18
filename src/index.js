@@ -1,10 +1,5 @@
 import axios from 'axios';
 
-// form fields
-const form = document.querySelector('.form-data');
-const region = document.querySelector('.region-name');
-const apiKey = document.querySelector('.api-key');
-
 // results
 const errors = document.querySelector('.errors');
 const loading = document.querySelector('.loading');
@@ -49,7 +44,6 @@ const displayCarbonUsage = async (apiKey, region) => {
 				calculateColor(CO2);
 
 				loading.style.display = 'none';
-				form.style.display = 'none';
 				myregion.textContent = region;
 				usage.textContent =
 					Math.round(response.data.data.carbonIntensity) + ' grams (grams C02 emitted per kilowatt hour)';
@@ -72,15 +66,8 @@ const setUpUser = async (apiKey, regionName) => {
 	localStorage.setItem('regionName', regionName);
 	loading.style.display = 'block';
 	errors.textContent = '';
-	clearBtn.style.display = 'block';
 	//make initial call
 	displayCarbonUsage(apiKey, regionName);
-};
-
-// handle form submission
-const handleSubmit = async (e) => {
-	e.preventDefault();
-	setUpUser(apiKey.value, region.value);
 };
 
 //initial checks
@@ -98,29 +85,22 @@ const init = async () => {
 	});
 
 	if (storedApiKey === null || storedRegion === null) {
-		//if we don't have the keys, show the form
-		form.style.display = 'block';
+		//if we don't have the keys, clear the text
 		results.style.display = 'none';
 		loading.style.display = 'none';
-		clearBtn.style.display = 'none';
 		errors.textContent = '';
 	} else {
 		//if we have saved keys/regions in localStorage, show results when they load
 		results.style.display = 'none';
-		form.style.display = 'none';
 		displayCarbonUsage(storedApiKey, storedRegion);
-		clearBtn.style.display = 'block';
 	}
 };
 
 const reset = async (e) => {
 	e.preventDefault();
-	//clear local storage for region only
-	localStorage.removeItem('regionName');
-	init();
+	chrome.runtime.openOptionsPage();
 };
 
-form.addEventListener('submit', (e) => handleSubmit(e));
 clearBtn.addEventListener('click', (e) => reset(e));
 
 //start app
